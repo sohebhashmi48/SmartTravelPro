@@ -1,0 +1,15 @@
+Create a visually stunning, interactive web application that serves as a smart travel planning platform powered by the OmniDimension voice agent API. This web app should not only be functional but also deliver a beautiful, engaging user experience that feels like a premium travel concierge service.
+
+Start with a full-screen hero section featuring a high-quality, royalty-free image or looping video (e.g., Bali beach, Paris skyline, Santorini sunset) sourced from sites like Unsplash, Pexels, or Pixabay. Apply a 3D parallax scrolling effect to give the page dynamic depth as the user scrolls. Overlay the hero with a bold headline like “Plan Your Dream Trip with AI” and a glowing “Start Planning” CTA button.
+
+Below the hero, present a Trip Preferences Form that allows users to enter their destination, duration, travel type (honeymoon, solo, family), budget range, and dates. Use stylish, rounded form inputs and light animations (e.g., slide-in fields or float labels) for a polished UX. When the form is submitted, trigger a POST request to the OmniDimension API that initiates a voice agent call, passing along the user's data in JSON format.
+
+Display a “Top 3 Deals” section after the AI responds. Each travel package should be shown in an animated card layout with icons for hotel, meals, flights, etc. Use hover effects and flip animations to make these cards interactive. Include agent name, price, confirmation time, and inclusions (hotel star rating, meals, sightseeing, etc.). Allow users to “Save,” “Email Me This,” or “Book Now” (dummy actions).
+
+Introduce a real-time logs panel below, with a dark-mode inspired table or grid that shows all agent responses: agent name, price, hotel rating, delivery time, timestamp, and any notes. Include a CSV export button, and a secondary button to send logs directly to Google Sheets via Apps Script or Zapier integration.
+
+In the footer or side panel, offer an Admin Panel (protected by a basic password or hidden route) where admins can update mock agent offers, toggle active/inactive agents, and view mini analytics like average price, most popular destination, fastest confirmation time, etc.
+
+Use GSAP or Locomotive Scroll for scroll animations and 3D parallax layers. Include micro-interactions like subtle form shake on invalid input, loading shimmer on results, and floating island illustrations. Utilize Google Fonts for a premium feel (e.g., Poppins, Montserrat, or Playfair Display) and a consistent color palette (sky blue, soft yellow, and dark navy).
+
+Ensure the entire experience is mobile-friendly, loads fast, and feels like a blend of technology + wanderlust. Think: the aesthetic of Airbnb meets the logic of ChatGPT meets the excitement of MakeMyTrip — all powered by voice AI.
