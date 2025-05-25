@@ -71,6 +71,12 @@ export const insertAgentSchema = createInsertSchema(agents).omit({
   id: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+});
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Trip = typeof trips.$inferSelect;
 export type InsertTrip = z.infer<typeof insertTripSchema>;
 export type Deal = typeof deals.$inferSelect;

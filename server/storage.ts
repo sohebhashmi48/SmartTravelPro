@@ -1,4 +1,6 @@
 import { users, trips, deals, agentLogs, agents, type User, type InsertUser, type Trip, type InsertTrip, type Deal, type InsertDeal, type AgentLog, type InsertAgentLog, type Agent, type InsertAgent } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
