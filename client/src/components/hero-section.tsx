@@ -37,13 +37,10 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        onError={(e) => {
-          console.log('Video failed to load, hiding video element');
-          (e.target as HTMLVideoElement).style.display = 'none';
-        }}
+        poster="https://images.unsplash.com/photo-1502602898536-47ad22581b52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=1333"
       >
-        <source src="/herovids/Paris： The last drone aerials.mp4" type="video/mp4" />
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-paris-aerial-view-4k-video-4308-large.mp4" type="video/mp4" />
+        <source src="https://cdn.coverr.co/videos/coverr-aerial-view-of-paris-4308/1080p.mp4" type="video/mp4" />
+        <source src="https://sample-videos.com/zip/10/mp4/720/mp4-720-sample.mp4" type="video/mp4" />
       </video>
       
       {/* Fallback background image */}
