@@ -30,8 +30,16 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black">
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black overflow-hidden">
+      <video 
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        src="/herovids/Paris： The last drone aerials.mp4"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black" />
 
       {/* Hero content */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center mb-12">
