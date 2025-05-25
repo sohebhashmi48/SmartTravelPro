@@ -8,12 +8,33 @@ export default function HeroSection() {
     }
   };
 
+  const reviews = [
+    {
+      name: "Sarah Johnson",
+      title: "Adventure Seeker",
+      text: "This AI travel planner made organizing my dream vacation a breeze! Highly recommended!",
+      rating: 5
+    },
+    {
+      name: "Michael Chen",
+      title: "Business Traveler",
+      text: "Saved me hours of research. The AI suggestions were spot-on!",
+      rating: 5
+    },
+    {
+      name: "Emma Davis",
+      title: "Family Vacationer",
+      text: "Perfect for planning family trips. The AI understood exactly what we needed.",
+      rating: 5
+    }
+  ];
+
   return (
-    <section className="min-h-screen relative flex items-center justify-center bg-black">
+    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
 
       {/* Hero content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 text-center mb-12">
         <h1 className="font-playfair text-6xl md:text-7xl font-bold text-orange-500 mb-6">
           Dream<span className="text-amber-400">Travel</span>
         </h1>
@@ -26,6 +47,24 @@ export default function HeroSection() {
         >
           Plan Your Journey
         </button>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {reviews.map((review, index) => (
+            <div key={index} className="bg-black/50 backdrop-blur-sm border border-orange-500/20 p-6 rounded-lg">
+              <div className="flex items-center mb-4">
+                {[...Array(review.rating)].map((_, i) => (
+                  <i key={i} className="fas fa-star text-amber-400"></i>
+                ))}
+              </div>
+              <p className="text-amber-100/90 mb-4 italic">&quot;{review.text}&quot;</p>
+              <div className="text-orange-500 font-semibold">{review.name}</div>
+              <div className="text-amber-400/80 text-sm">{review.title}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
