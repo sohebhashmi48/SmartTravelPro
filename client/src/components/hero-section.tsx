@@ -37,9 +37,9 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        src="/herovids/Paris： The last drone aerials.mp4"
+        src="herovids/Paris： The last drone aerials.mp4"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/90" />
 
       {/* Hero content */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center mb-12">
