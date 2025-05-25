@@ -37,7 +37,21 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        src="/herovids/Paris： The last drone aerials.mp4"
+        onError={(e) => {
+          console.log('Video failed to load, hiding video element');
+          (e.target as HTMLVideoElement).style.display = 'none';
+        }}
+      >
+        <source src="/herovids/Paris： The last drone aerials.mp4" type="video/mp4" />
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-paris-aerial-view-4k-video-4308-large.mp4" type="video/mp4" />
+      </video>
+      
+      {/* Fallback background image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1502602898536-47ad22581b52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&h=1333')"
+        }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/90" />
 
