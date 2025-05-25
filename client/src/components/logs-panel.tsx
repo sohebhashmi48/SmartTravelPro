@@ -16,7 +16,7 @@ export default function LogsPanel() {
     mutationFn: async () => {
       const response = await fetch('/api/logs/export');
       const blob = await response.blob();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -57,19 +57,25 @@ export default function LogsPanel() {
           </h2>
           <p className="text-lg text-gray-300">Monitor live responses from our AI travel agents</p>
         </div>
-        
+
         <div className="bg-gray-800 rounded-3xl p-8 shadow-2xl">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h3 className="text-2xl font-bold text-white mb-4 sm:mb-0">Agent Response Logs</h3>
             <div className="flex space-x-4">
-              <Button 
+              <Button
+                onClick={() => window.open('/chat-logs', '_blank')}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+              >
+                <i className="fas fa-comments mr-2"></i>Chat Logs
+              </Button>
+              <Button
                 onClick={() => exportCSVMutation.mutate()}
                 disabled={exportCSVMutation.isPending}
-                className="bg-secondary hover:bg-yellow-500 text-gray-900 font-semibold"
+                className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold"
               >
                 <i className="fas fa-download mr-2"></i>Export CSV
               </Button>
-              <Button 
+              <Button
                 onClick={() => sendToSheetsMutation.mutate()}
                 disabled={sendToSheetsMutation.isPending}
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold"
@@ -78,7 +84,7 @@ export default function LogsPanel() {
               </Button>
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             {isLoading ? (
               <div className="space-y-4">
@@ -113,7 +119,7 @@ export default function LogsPanel() {
                         <td className="py-3 px-4 font-semibold text-green-400">${log.price}</td>
                         <td className="py-3 px-4">
                           {Array.from({ length: log.hotelRating }).map((_, i) => (
-                            <i key={i} className="fas fa-star text-yellow-400 text-xs"></i>
+                            <i key={i} className="fas fa-star text-white text-xs"></i>
                           ))}
                         </td>
                         <td className="py-3 px-4">{log.deliveryTime}</td>

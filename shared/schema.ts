@@ -1,55 +1,75 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { mysqlTable, varchar, int, decimal, boolean, timestamp, json, text } from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-});
-
-export const trips = pgTable("trips", {
-  id: serial("id").primaryKey(),
-  destination: text("destination").notNull(),
-  duration: text("duration").notNull(),
-  travelType: text("travel_type").notNull(),
-  budget: text("budget").notNull(),
-  departureDate: text("departure_date").notNull(),
-  returnDate: text("return_date").notNull(),
+export const users = mysqlTable("users", {
+  id: int("id").primaryKey().autoincrement(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const deals = pgTable("deals", {
-  id: serial("id").primaryKey(),
-  tripId: integer("trip_id").references(() => trips.id),
-  agent: text("agent").notNull(),
-  destination: text("destination").notNull(),
+export const trips = mysqlTable("trips", {
+  id: int("id").primaryKey().autoincrement(),
+  destination: varchar("destination", { length: 255 }).notNull(),
+  duration: varchar("duration", { length: 100 }).notNull(),
+  travelType: varchar("travel_type", { length: 100 }).notNull(),
+  budget: varchar("budget", { length: 100 }).notNull(),
+  departureDate: varchar("departure_date", { length: 50 }).notNull(),
+  returnDate: varchar("return_date", { length: 50 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const deals = mysqlTable("deals", {
+  id: int("id").primaryKey().autoincrement(),
+  tripId: int("trip_id").references(() => trips.id),
+  agent: varchar("agent", { length: 255 }).notNull(),
+  destination: varchar("destination", { length: 255 }).notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   originalPrice: decimal("original_price", { precision: 10, scale: 2 }).notNull(),
-  hotelRating: integer("hotel_rating").notNull(),
-  confirmationTime: text("confirmation_time").notNull(),
-  inclusions: text("inclusions").array().notNull(),
+  hotelRating: int("hotel_rating").notNull(),
+  confirmationTime: varchar("confirmation_time", { length: 50 }).notNull(),
+  inclusions: json("inclusions").notNull(),
   imageUrl: text("image_url").notNull(),
   description: text("description").notNull(),
+  // Enhanced deal information
+  flightDetails: json("flight_details"),
+  accommodationDetails: json("accommodation_details"),
+  inclusionsBreakdown: json("inclusions_breakdown"),
+  locationInfo: json("location_info"),
+  bookingTerms: json("booking_terms"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const agentLogs = pgTable("agent_logs", {
-  id: serial("id").primaryKey(),
-  agent: text("agent").notNull(),
+export const agentLogs = mysqlTable("agent_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  agent: varchar("agent", { length: 255 }).notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  hotelRating: integer("hotel_rating").notNull(),
-  deliveryTime: text("delivery_time").notNull(),
+  hotelRating: int("hotel_rating").notNull(),
+  deliveryTime: varchar("delivery_time", { length: 50 }).notNull(),
   notes: text("notes").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const agents = pgTable("agents", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
+export const agents = mysqlTable("agents", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  isActive: boolean("is_active").notNull().default(true),
   avgPrice: decimal("avg_price", { precision: 10, scale: 2 }),
-  avgConfirmationTime: text("avg_confirmation_time"),
+  avgConfirmationTime: varchar("avg_confirmation_time", { length: 50 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatLogs = mysqlTable("chat_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  tripId: int("trip_id").references(() => trips.id),
+  agent: varchar("agent", { length: 255 }).notNull(),
+  messageType: varchar("message_type", { length: 50 }).notNull(), // 'user' or 'agent'
+  message: text("message").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  metadata: json("metadata"), // Additional context like deal_id, step, etc.
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertTripSchema = createInsertSchema(trips).omit({
@@ -85,3 +105,11 @@ export type AgentLog = typeof agentLogs.$inferSelect;
 export type InsertAgentLog = z.infer<typeof insertAgentLogSchema>;
 export type Agent = typeof agents.$inferSelect;
 export type InsertAgent = z.infer<typeof insertAgentSchema>;
+
+export const insertChatLogSchema = createInsertSchema(chatLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type ChatLog = typeof chatLogs.$inferSelect;
+export type InsertChatLog = z.infer<typeof insertChatLogSchema>;
