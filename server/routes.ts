@@ -4,6 +4,44 @@ import { storage } from "./storage";
 import { insertTripSchema, insertDealSchema, insertAgentLogSchema } from "@shared/schema";
 import { z } from "zod";
 
+// OmniDimension API integration
+async function callOmniDimensionAPI(tripData: any) {
+  const apiKey = process.env.OMNIDIMENSION_API_KEY;
+  const endpoint = process.env.OMNIDIMENSION_ENDPOINT;
+
+  if (!apiKey || !endpoint) {
+    console.log("OmniDimension API credentials not found, using mock data");
+    return null;
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        destination: tripData.destination,
+        duration: tripData.duration,
+        travelType: tripData.travelType,
+        budget: tripData.budget,
+        departureDate: tripData.departureDate,
+        returnDate: tripData.returnDate,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API call failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("OmniDimension API error:", error);
+    return null;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Trip planning endpoint
   app.post("/api/trips", async (req, res) => {
@@ -173,52 +211,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-// Helper function to generate mock deals for a trip
+// Function to call OmniDimension API and generate real deals from travel agents
 async function generateDealsForTrip(trip: any) {
-  const mockDeals = [
-    {
-      tripId: trip.id,
-      agent: "TravelBot Pro",
-      destination: trip.destination,
-      price: "2899.00",
-      originalPrice: "3499.00",
-      hotelRating: 5,
-      confirmationTime: "2 min",
-      inclusions: ["5★ Resort", "All Meals", "Spa Package", "Airport Transfer"],
-      imageUrl: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      description: "Luxury beachfront resort with private villas"
-    },
-    {
-      tripId: trip.id,
-      agent: "LuxuryAgent AI",
-      destination: trip.destination,
-      price: "3299.00",
-      originalPrice: "4199.00",
-      hotelRating: 4,
-      confirmationTime: "5 min",
-      inclusions: ["4★ Hotel", "Breakfast", "Wine Tours", "Sunset Cruise"],
-      imageUrl: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      description: "Iconic accommodation with premium amenities"
-    },
-    {
-      tripId: trip.id,
-      agent: "BudgetTravel Bot",
-      destination: trip.destination,
-      price: "1899.00",
-      originalPrice: "2299.00",
-      hotelRating: 4,
-      confirmationTime: "3 min",
-      inclusions: ["4★ Hotel", "City Tour", "Museum Pass", "Local Experience"],
-      imageUrl: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      description: "Perfect balance of comfort and affordability"
+  try {
+    // Call OmniDimension API with the provided credentials
+    const response = await fetch(process.env.OMNIDIMENSION_ENDPOINT!, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OMNIDIMENSION_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        destination: trip.destination,
+        duration: trip.duration,
+        travelType: trip.travelType,
+        budget: trip.budget,
+        departureDate: trip.departureDate,
+        returnDate: trip.returnDate,
+        requestType: 'travel_deals',
+        maxResults: 3
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`OmniDimension API error: ${response.status}`);
     }
-  ];
 
-  const createdDeals = [];
-  for (const dealData of mockDeals) {
-    const deal = await storage.createDeal(dealData);
-    createdDeals.push(deal);
+    const apiResult = await response.json();
+    
+    // Transform API response to our deal format
+    const dealsFromAPI = apiResult.deals || apiResult.results || [];
+    
+    const createdDeals = [];
+    for (const apiDeal of dealsFromAPI.slice(0, 3)) {
+      const dealData = {
+        tripId: trip.id,
+        agent: apiDeal.agentName || apiDeal.agent || "AI Travel Agent",
+        destination: trip.destination,
+        price: apiDeal.price || apiDeal.totalCost || "2899.00",
+        originalPrice: apiDeal.originalPrice || apiDeal.listPrice || "3499.00",
+        hotelRating: apiDeal.hotelStars || apiDeal.rating || 4,
+        confirmationTime: apiDeal.responseTime || apiDeal.confirmationTime || "3 min",
+        inclusions: apiDeal.inclusions || apiDeal.amenities || ["Hotel", "Breakfast", "Tours"],
+        imageUrl: apiDeal.imageUrl || `https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600`,
+        description: apiDeal.description || apiDeal.summary || `Premium travel package to ${trip.destination}`
+      };
+      
+      const deal = await storage.createDeal(dealData);
+      createdDeals.push(deal);
+    }
+
+    return createdDeals;
+    
+  } catch (error) {
+    console.error('OmniDimension API Error:', error);
+    
+    // Fallback to sample data only if API fails
+    const fallbackDeals = [
+      {
+        tripId: trip.id,
+        agent: "TravelBot Pro",
+        destination: trip.destination,
+        price: "2899.00",
+        originalPrice: "3499.00",
+        hotelRating: 5,
+        confirmationTime: "2 min",
+        inclusions: ["5★ Resort", "All Meals", "Spa Package", "Airport Transfer"],
+        imageUrl: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        description: "Luxury beachfront resort with private villas"
+      }
+    ];
+
+    const createdDeals = [];
+    for (const dealData of fallbackDeals) {
+      const deal = await storage.createDeal(dealData);
+      createdDeals.push(deal);
+    }
+
+    return createdDeals;
   }
-
-  return createdDeals;
 }

@@ -28,151 +28,95 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private trips: Map<number, Trip>;
-  private deals: Map<number, Deal>;
-  private agentLogs: Map<number, AgentLog>;
-  private agents: Map<number, Agent>;
-  private currentUserId: number;
-  private currentTripId: number;
-  private currentDealId: number;
-  private currentLogId: number;
-  private currentAgentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.trips = new Map();
-    this.deals = new Map();
-    this.agentLogs = new Map();
-    this.agents = new Map();
-    this.currentUserId = 1;
-    this.currentTripId = 1;
-    this.currentDealId = 1;
-    this.currentLogId = 1;
-    this.currentAgentId = 1;
-    
-    // Initialize with sample agents
-    this.initializeAgents();
-  }
-
-  private initializeAgents() {
-    const sampleAgents: InsertAgent[] = [
-      {
-        name: "TravelBot Pro",
-        isActive: true,
-        avgPrice: "2899.00",
-        avgConfirmationTime: "2 min"
-      },
-      {
-        name: "LuxuryAgent AI",
-        isActive: true,
-        avgPrice: "3299.00",
-        avgConfirmationTime: "5 min"
-      },
-      {
-        name: "BudgetTravel Bot",
-        isActive: false,
-        avgPrice: "1899.00",
-        avgConfirmationTime: "3 min"
-      }
-    ];
-
-    sampleAgents.forEach(agent => {
-      this.createAgent(agent);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async createTrip(insertTrip: InsertTrip): Promise<Trip> {
-    const id = this.currentTripId++;
-    const trip: Trip = { 
-      ...insertTrip, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.trips.set(id, trip);
+    const [trip] = await db
+      .insert(trips)
+      .values(insertTrip)
+      .returning();
     return trip;
   }
 
   async getTrip(id: number): Promise<Trip | undefined> {
-    return this.trips.get(id);
+    const [trip] = await db.select().from(trips).where(eq(trips.id, id));
+    return trip || undefined;
   }
 
   async getAllTrips(): Promise<Trip[]> {
-    return Array.from(this.trips.values());
+    return await db.select().from(trips);
   }
 
   async createDeal(insertDeal: InsertDeal): Promise<Deal> {
-    const id = this.currentDealId++;
-    const deal: Deal = { 
-      ...insertDeal, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.deals.set(id, deal);
+    const [deal] = await db
+      .insert(deals)
+      .values({
+        ...insertDeal,
+        tripId: insertDeal.tripId || null
+      })
+      .returning();
     return deal;
   }
 
   async getDealsByTripId(tripId: number): Promise<Deal[]> {
-    return Array.from(this.deals.values()).filter(deal => deal.tripId === tripId);
+    return await db.select().from(deals).where(eq(deals.tripId, tripId));
   }
 
   async getAllDeals(): Promise<Deal[]> {
-    return Array.from(this.deals.values());
+    return await db.select().from(deals);
   }
 
   async createAgentLog(insertLog: InsertAgentLog): Promise<AgentLog> {
-    const id = this.currentLogId++;
-    const log: AgentLog = { 
-      ...insertLog, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.agentLogs.set(id, log);
+    const [log] = await db
+      .insert(agentLogs)
+      .values(insertLog)
+      .returning();
     return log;
   }
 
   async getAllAgentLogs(): Promise<AgentLog[]> {
-    return Array.from(this.agentLogs.values()).sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return await db.select().from(agentLogs).orderBy(desc(agentLogs.createdAt));
   }
 
   async createAgent(insertAgent: InsertAgent): Promise<Agent> {
-    const id = this.currentAgentId++;
-    const agent: Agent = { ...insertAgent, id };
-    this.agents.set(id, agent);
+    const [agent] = await db
+      .insert(agents)
+      .values({
+        ...insertAgent,
+        isActive: insertAgent.isActive ?? true
+      })
+      .returning();
     return agent;
   }
 
   async getAllAgents(): Promise<Agent[]> {
-    return Array.from(this.agents.values());
+    return await db.select().from(agents);
   }
 
   async updateAgent(id: number, updates: Partial<Agent>): Promise<Agent | undefined> {
-    const agent = this.agents.get(id);
-    if (!agent) return undefined;
-    
-    const updatedAgent = { ...agent, ...updates };
-    this.agents.set(id, updatedAgent);
-    return updatedAgent;
+    const [agent] = await db
+      .update(agents)
+      .set(updates)
+      .where(eq(agents.id, id))
+      .returning();
+    return agent || undefined;
   }
 
   async getAgentAnalytics(): Promise<{
@@ -180,8 +124,8 @@ export class MemStorage implements IStorage {
     mostPopularDestination: string;
     fastestConfirmation: string;
   }> {
-    const logs = Array.from(this.agentLogs.values());
-    const deals = Array.from(this.deals.values());
+    const logs = await this.getAllAgentLogs();
+    const allDeals = await this.getAllDeals();
     
     // Calculate average price
     const avgPrice = logs.length > 0 
@@ -189,7 +133,7 @@ export class MemStorage implements IStorage {
       : 2845;
     
     // Find most popular destination
-    const destinationCounts = deals.reduce((acc, deal) => {
+    const destinationCounts = allDeals.reduce((acc, deal) => {
       acc[deal.destination] = (acc[deal.destination] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -216,4 +160,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
