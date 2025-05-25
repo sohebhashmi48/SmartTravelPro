@@ -1,6 +1,10 @@
 # SmartTravel Pro
 
 An intelligent travel planning platform powered by AI agents that negotiate and curate the best travel deals for you.
+<video width="600" controls>
+  <source src="video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 ## Features
 
