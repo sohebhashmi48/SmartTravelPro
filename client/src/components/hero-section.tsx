@@ -24,13 +24,22 @@ export default function HeroSection() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2000&h=1333')"
+            backgroundImage: "url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2071&q=80')"
           }}
         />
       </div>
       
       {/* Gradient overlay */}
-      <div className="parallax-layer bg-gradient-to-r from-accent/70 via-primary/50 to-accent/70" />
+      <div className="parallax-layer bg-gradient-to-r from-background/90 via-background/80 to-background/90" />
+      
+      {/* Cherry blossoms animation */}
+      <div className="absolute inset-0 pointer-events-none">
+        <img 
+          src="https://media.giphy.com/media/dyjrpqaUVqCELGuQVr/giphy.gif" 
+          className="absolute top-0 left-0 w-full h-full object-cover opacity-30 mix-blend-screen"
+          alt="Cherry blossoms"
+        />
+      </div>
       
       {/* Floating elements */}
       <div className="absolute top-20 left-10 floating-element opacity-20">
