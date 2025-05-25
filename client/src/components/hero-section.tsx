@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
 
 export default function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -33,7 +34,11 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black overflow-hidden">
+    <section className="min-h-screen relative flex flex-col items-center justify-center bg-black dark:bg-slate-900 overflow-hidden">
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <video 
         className="absolute inset-0 w-full h-full object-cover"
         autoPlay
@@ -66,15 +71,15 @@ export default function HeroSection() {
 
       {/* Hero content */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center mb-12">
-        <h1 className="font-playfair text-6xl md:text-7xl font-bold text-orange-500 mb-6">
-          Dream<span className="text-amber-400">Travel</span>
+        <h1 className="font-playfair text-6xl md:text-7xl font-bold text-primary dark:text-primary mb-6">
+          Dream<span className="text-secondary dark:text-secondary">Travel</span>
         </h1>
-        <p className="text-xl md:text-2xl text-amber-100/80 mb-12 font-light max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl text-slate-200 dark:text-slate-300 mb-12 font-light max-w-2xl mx-auto">
           Experience the future of travel planning with our intelligent AI assistant
         </p>
         <button 
           onClick={scrollToForm}
-          className="bg-orange-500 hover:bg-orange-600 text-black font-semibold py-4 px-8 rounded-none text-lg transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_0_0_rgb(245,158,11)]"
+          className="bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/80 text-white dark:text-white font-semibold py-4 px-8 rounded-none text-lg transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_4px_0_0_hsl(var(--primary))]"
         >
           Plan Your Journey
         </button>
